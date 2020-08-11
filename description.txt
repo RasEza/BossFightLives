@@ -1,0 +1,3 @@
+Boss Fight Lives is intended to be used in a muiltiplayer game.
+
+Lets you limit respawn-scumming in multiplayer by adding an option to limit the number of respawns allowed during a bossfight.

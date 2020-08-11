@@ -1,0 +1,4 @@
+displayName = Boss Fight Lives
+author = Rasy (Implementer) and Kgoyo (Concept)
+version = 1.0
+side = both
