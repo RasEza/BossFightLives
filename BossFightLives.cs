@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using BossFightLives.UI;
+using BossFightLives.UiConfiguration;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
@@ -7,18 +7,18 @@ using Terraria.UI;
 
 namespace BossFightLives
 {
-	public class BossFightLives : Mod
-	{
-        private UserInterface userInterface;
-        private LifePoolUi lifePoolUi;
+    public class BossFightLives : Mod
+    {
+        public LifePool LifePool;
+        public ChatAnnouncements ChatAnnouncements;
 
         public override void Load()
         {
             if (!Main.dedServ)
             {
-                lifePoolUi = new LifePoolUi();
-                lifePoolUi.Activate();
-                userInterface = new UserInterface();
+                LifePool = new LifePool();
+                ChatAnnouncements = new ChatAnnouncements();
+                ConfigureUi(ModContent.GetInstance<BflClientConfig>());
             }
         }
 
@@ -26,25 +26,16 @@ namespace BossFightLives
         {
             if (!Main.dedServ)
             {
-                userInterface = null;
-                lifePoolUi = null;
+                LifePool?.Disable();
+                LifePool = null;
+                ChatAnnouncements?.Disable();
+                ChatAnnouncements = null;
             }
         }
-        
+
         public override void UpdateUI(GameTime gameTime)
         {
-            var modInstance = ModContent.GetInstance<BossFightLives>();
-            if (ModContent.GetInstance<BflClientConfig>().ConfigurationMode || BflWorld.IsBossActive)
-            {
-                modInstance.ShowLifePoolUi();
-            }
-            else if (!BflWorld.IsBossActive && !ModContent.GetInstance<BflClientConfig>().ConfigurationMode)
-            {
-                modInstance.HideLifePoolUi();
-            }
-
-            if (userInterface?.CurrentState != null)
-                userInterface?.Update(gameTime);
+            LifePool?.Update(gameTime);
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
@@ -56,30 +47,42 @@ namespace BossFightLives
                     $"{nameof(BossFightLives)}: UI",
                     () =>
                     {
-                        if (userInterface?.CurrentState != null)
+                        if (LifePool?.Enabled ?? false)
                         {
-                            userInterface.Draw(Main.spriteBatch, new GameTime());
+                            LifePool.Draw();
                         }
+
                         return true;
                     },
                     InterfaceScaleType.UI));
             }
         }
 
-        public void UpdateLifePoolUiProperties()
+        public void ConfigureUi(BflClientConfig clientConfiguration)
         {
-            lifePoolUi?.UpdateProperties();
-        }
+            if (LifePool != null)
+            {
+                if (clientConfiguration.EnableLifePoolUi)
+                {
+                    LifePool.Enable();
+                    LifePool.UpdateProperties();
 
-        private void ShowLifePoolUi()
-        {
-            if (userInterface?.CurrentState == null)
-                userInterface?.SetState(lifePoolUi);
-        }
+                    if (clientConfiguration.ConfigurationMode)
+                        LifePool.Show();
+                    else if (!BflWorld.IsBossActive && !clientConfiguration.ConfigurationMode)
+                        LifePool.Hide();
+                }
+                else
+                    LifePool.Disable();
+            }
 
-        private void HideLifePoolUi()
-        {
-            userInterface?.SetState(null);
+            if (ChatAnnouncements != null)
+            {
+                if (clientConfiguration.EnableChatAnnouncements)
+                    ChatAnnouncements.Enable();
+                else
+                    ChatAnnouncements.Disable();
+            }
         }
     }
 }

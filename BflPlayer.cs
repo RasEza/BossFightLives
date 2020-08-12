@@ -1,10 +1,13 @@
-﻿using Terraria.DataStructures;
+﻿using System;
+using Terraria.DataStructures;
 using Terraria.ModLoader;
 
 namespace BossFightLives
 {
     public class BflPlayer : ModPlayer
     {
+        public static event EventHandler<(int currentLives, int previousLives)> OnLifeLost;
+
         public override void PreUpdate()
         {
             if (ModContent.GetInstance<BflServerConfig>().SharedDeath &&
@@ -19,7 +22,9 @@ namespace BossFightLives
         {
             if (BflWorld.IsBossActive && BflWorld.Lives > 0)
             {
+                var currentLives = BflWorld.Lives;
                 BflWorld.Lives--;
+                OnLifeLost?.Invoke(this, (currentLives, BflWorld.Lives));
             }
         }
 

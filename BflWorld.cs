@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Terraria;
 using Terraria.ID;
@@ -11,6 +12,8 @@ namespace BossFightLives
         public static int Lives;
         public static bool IsBossActive;
 
+        public event EventHandler<bool> BossActiveStateChanged;
+
         public override void PostUpdate()
         {
             var anyBosses = IsAnyBossActive();
@@ -19,6 +22,7 @@ namespace BossFightLives
                 IsBossActive = true;
                 Lives = ModContent.GetInstance<BflServerConfig>().SharedLives;
                 NetMessage.SendData(MessageID.WorldData);
+                BossActiveStateChanged?.Invoke(this, IsBossActive);
             }
             else if (!anyBosses && IsBossActive)
             {
@@ -36,7 +40,14 @@ namespace BossFightLives
         public override void NetReceive(BinaryReader reader)
         {
             Lives = reader.ReadInt32();
-            IsBossActive = reader.ReadBoolean();
+
+            var newBossState = reader.ReadBoolean();
+            if (newBossState != IsBossActive)
+            {
+                BossActiveStateChanged?.Invoke(this, newBossState);
+            }
+
+            IsBossActive = newBossState;
         }
 
         private static bool IsAnyBossActive() => Main.npc.Any(x => x != null && x.active && x.boss);

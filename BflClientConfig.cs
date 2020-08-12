@@ -4,25 +4,20 @@ using Terraria.ModLoader.Config;
 
 namespace BossFightLives
 {
-    class BflServerConfig : ModConfig
-    {
-        public override ConfigScope Mode => ConfigScope.ServerSide;
-
-        [Label("Shared lives")]
-        [Tooltip("Number of deaths before respawning should be prevented.")]
-        [DefaultValue(5)]
-        public int SharedLives;
-
-        [Label("Shared death")]
-        [Tooltip("Checked: Kill remaining players when the shared life pool is empty." +
-                 "\nUnchecked: Prevent respawning when the shared life pool is empty.")]
-        [DefaultValue(true)]
-        public bool SharedDeath;
-    }
-
-    class BflClientConfig : ModConfig
+    public class BflClientConfig : ModConfig
     {
         public override ConfigScope Mode => ConfigScope.ClientSide;
+
+        [Label("Enable chat announcements")]
+        [Tooltip("Messages in chat will indicate when lives are lost and more...")]
+        [DefaultValue(false)]
+        public bool EnableChatAnnouncements;
+
+        [Header("Life Pool")]
+
+        [Label("Enable")]
+        [DefaultValue(true)]
+        public bool EnableLifePoolUi;
 
         [Label("Lock life pool display")]
         [DefaultValue(false)]
@@ -36,7 +31,7 @@ namespace BossFightLives
         [Label("Life Pool X Position")]
         [Tooltip("The X position of the life pool display.")]
         [Slider]
-        [Range(0f,3840f)]
+        [Range(0f, 3840f)]
         [DefaultValue(500f)]
         public float LifePoolPosX;
 
@@ -49,7 +44,7 @@ namespace BossFightLives
 
         public override void OnChanged()
         {
-            ModContent.GetInstance<BossFightLives>().UpdateLifePoolUiProperties();
+            ModContent.GetInstance<BossFightLives>().ConfigureUi(this);
         }
     }
 }
