@@ -18,33 +18,31 @@ namespace BossFightLives.UiConfiguration
             userInterface = new UserInterface();
         }
 
-        public override void Enable()
-        {
-            if (Enabled)
-                return;
-            Enabled = true;
-
-            var modWorld = ModContent.GetInstance<BflWorld>();
-            modWorld.BossActiveStateChanged += ToggleLifePoolUi;
-        }
-
         public override void Disable()
         {
-            Enabled = false;
-            var modWorld = ModContent.GetInstance<BflWorld>();
-            modWorld.BossActiveStateChanged -= ToggleLifePoolUi;
+            base.Disable();
             Hide();
+        }
+
+        protected override void OnLifeLost(object sender, (int currentLives, int previousLives) e)
+        {
+            lifePoolUi.Update(new GameTime());
+        }
+
+        protected override void OnBossStateChanged(object sender, bool b)
+        {
+            if (b)
+            {
+                Show();
+                lifePoolUi.Update(new GameTime());
+            }
+            else if (!ModContent.GetInstance<BflClientConfig>().ConfigurationMode)
+                Hide();
         }
 
         public void UpdateProperties()
         {
             lifePoolUi?.UpdateProperties();
-        }
-
-        public void Update(GameTime gameTime)
-        {
-            if (userInterface?.CurrentState != null)
-                userInterface?.Update(gameTime);
         }
 
         public void Draw()
@@ -61,16 +59,6 @@ namespace BossFightLives.UiConfiguration
         public void Hide()
         {
             userInterface?.SetState(null);
-        }
-
-        private void ToggleLifePoolUi(object sender, bool b)
-        {
-            if (b)
-            {
-                Show();
-            }
-            else
-                Hide();
         }
     }
 }

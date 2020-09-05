@@ -33,11 +33,6 @@ namespace BossFightLives
             }
         }
 
-        public override void UpdateUI(GameTime gameTime)
-        {
-            LifePool?.Update(gameTime);
-        }
-
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
         {
             var mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
@@ -67,7 +62,7 @@ namespace BossFightLives
                     LifePool.Enable();
                     LifePool.UpdateProperties();
 
-                    if (clientConfiguration.ConfigurationMode)
+                    if (clientConfiguration.ConfigurationMode || BflWorld.IsBossActive)
                         LifePool.Show();
                     else if (!BflWorld.IsBossActive && !clientConfiguration.ConfigurationMode)
                         LifePool.Hide();

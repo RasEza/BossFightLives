@@ -28,6 +28,7 @@ namespace BossFightLives
             {
                 IsBossActive = false;
                 NetMessage.SendData(MessageID.WorldData);
+                BossActiveStateChanged?.Invoke(this, IsBossActive);
             }
         }
 

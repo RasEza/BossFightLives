@@ -5,23 +5,7 @@ namespace BossFightLives.UiConfiguration
 {
     public class ChatAnnouncements : UiConfiguration
     {
-        public override void Enable()
-        {
-            if (Enabled)
-                return;
-            Enabled = true;
-            ModContent.GetInstance<BflWorld>().BossActiveStateChanged += OnModWorldOnBossActiveStateChanged;
-            BflPlayer.OnLifeLost += BflPlayer_OnLifeLost;
-        }
-
-        public override void Disable()
-        {
-            Enabled = false;
-            ModContent.GetInstance<BflWorld>().BossActiveStateChanged -= OnModWorldOnBossActiveStateChanged;
-            BflPlayer.OnLifeLost -= BflPlayer_OnLifeLost;
-        }
-
-        private void OnModWorldOnBossActiveStateChanged(object sender, bool b)
+        protected override void OnBossStateChanged(object sender, bool b)
         {
             if (!b)
                 return;
@@ -39,7 +23,7 @@ namespace BossFightLives.UiConfiguration
             Main.NewText(message);
         }
 
-        private void BflPlayer_OnLifeLost(object sender, (int currentLives, int previousLives) e)
+        protected override void OnLifeLost(object sender, (int currentLives, int previousLives) e)
         {
             Main.NewText($"Lives: {e.currentLives} -> {e.previousLives}");
         }
